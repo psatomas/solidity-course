@@ -5,7 +5,7 @@ pragma solidity ^0.8.28;
 contract WillThrow {
     error NotAllowedError(string);
     function aFunction() public pure {
-        revert NotAllowerdError("You are not allowed");
+        revert NotAllowedError("You are not allowed");
     }
 }
 
