@@ -5,7 +5,7 @@ contract EventSample {
 
     mapping(address => uint256) public tokenBalance;
 
-    event TokensSent(address _from, address _to, uint256 _amount);
+    event TokensSent(address indexed _from, address indexed _to, uint256 _amount);
 
     constructor() {
         tokenBalance[msg.sender] = 190;
