@@ -1,39 +1,55 @@
-//SPDX-License-Identifier: MIT
-
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-contract InheritanceModifierExample {
-
-    mapping(address => uint256) public tokenBalance;
-    
-    address owner;
-    
-    uint256 tokenPrice = 1 ether;
+contract Owner {
+    address public owner;
 
     constructor() {
         owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the owner");
+        _;
+    }
+}
+
+contract InheritanceModifierExample is Owner {
+
+    mapping(address => uint256) public tokenBalance;
+
+    uint256 public tokenPrice = 1 ether;
+
+    constructor() {
         tokenBalance[msg.sender] = 100;
     }
 
-    function createNewToken() public {
-        require(msg.sender == owner, "You are not allowed");
-        tokenBalance[owner]++;
+    function createNewToken() external onlyOwner {
+        tokenBalance[owner] += 1;
     }
 
-    function burnToken() public {
-        require(msg.sender == owner, "You are not allowed");
-        tokenBalance[owner]--;
+    function burnToken(uint256 amount) external onlyOwner {
+        require(tokenBalance[owner] >= amount, "Not enough tokens to burn");
+        tokenBalance[owner] -= amount;
     }
 
-    function purchaseToken() public payble {
-        require((tokenBalance[owner] * tokenPrice) / msg.value > 0, "Not enough tokens");
-        tokenBalance[owner] -= msg.value / tokenPrice;
-        tokenBalance[msg.sender] += msg.value / tokenPrice;
+    function purchaseToken() external payable {
+        require(msg.value > 0, "Send ETH to purchase tokens");
+
+        uint256 tokensToBuy = msg.value / tokenPrice;
+        require(tokensToBuy > 0, "Insufficient ETH for one token");
+        require(tokenBalance[owner] >= tokensToBuy, "Not enough tokens available");
+
+        tokenBalance[owner] -= tokensToBuy;
+        tokenBalance[msg.sender] += tokensToBuy;
     }
 
-    function sendToken(address _to, uint256 _amount) public {
-        require(tokenBalance[msg.sender] >= _amount, "Not enough tokens");
-        tokenBalance[msg.sender] -= _amount;
-        tokenBalance[_to] += _amount;
+    function sendToken(address to, uint256 amount) external {
+        require(to != address(0), "Invalid recipient");
+        require(tokenBalance[msg.sender] >= amount, "Not enough tokens");
+
+        tokenBalance[msg.sender] -= amount;
+        tokenBalance[to] += amount;
     }
 }
+
