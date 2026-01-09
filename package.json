@@ -25,5 +25,8 @@
     "mocha": "^11.7.4",
     "typescript": "~5.8.0"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0"
+  }
 }
